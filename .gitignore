@@ -1,0 +1,61 @@
+# Directories common in repo root
+datasets/
+log/
+checkpoints/
+results/
+temp/
+test/
+models/
+bla/
+mAP/
+detections/
+
+# Data files
+*.h5
+*.weights
+*.pb
+*.tflite
+*.mp4
+*.png
+*.jpg
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# VS Studio Code
+.vscode
+
+# PyCharm
+.idea/
+
+# Dropbox
+.dropbox.attr
+
+# virtualenv
+.venv
+.venv-linux
