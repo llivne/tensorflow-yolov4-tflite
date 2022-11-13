@@ -2,12 +2,26 @@ import fiftyone as fo
 import keyboard
 import time
 
+
+# split = "train" or "test" or "validation" or None for all
+# classes=['Person',
+#          'Dog',
+#          'Cat',
+#          'Raccoon',
+#          'Squirrel',
+#          'Bat (Animal)',
+#          'Mouse',
+#          'Bird',
+#          'Owl',
+#          'Snake'],
+
+
 dataset = fo.zoo.load_zoo_dataset(
     "open-images-v6",
-    split="validation",
-    label_types=["detections", "segmentations"],
-    classes=["Cat", "Dog"],
-    max_samples=2,
+    split=None,
+    label_types=["detections"],
+    classes=["Mouse"],
+    max_samples=10000,
 )
 
 # # load the images in gui

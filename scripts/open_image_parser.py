@@ -19,7 +19,7 @@ CLASSES = ['person',
            'squirrel',
            'bat (animal)',
            'mouse',
-           'Bird',
+           'bird',
            'owl',
            'snake']
 
@@ -56,7 +56,7 @@ class CreateAnnotation(object):
                     txt_file = os.path.join(root, pre + ".txt")
                     if not os.path.exists(txt_file):
                         print("{}creating annotation img file for: {}{}".format(TGREEN, file, ENDC))
-                        self.create_annotation(txt_file, pre, img_file)
+                        self.create_annotation(txt_file, pre)
 
     def get_yolo_annotation(self, row):
         x_min = float(row[4])
@@ -73,48 +73,31 @@ class CreateAnnotation(object):
 
         return "{} {} {} {}".format(str(coords[0]), str(coords[1]), str(coords[2]), str(coords[3]))
 
-    # def get_yolo_annotation_old_not_good(self, row, img_path):
-    #     x_min = float(row[4]) * 1000
-    #     y_min = float(row[6]) * 1000
-    #     x_max = float(row[5]) * 1000
-    #     y_max = float(row[7]) * 1000
-    #
-    #     image = cv2.imread(img_path)
-    #
-    #     coords = [x_min, y_min, x_max, y_max]
-    #     coords[2] -= coords[0]
-    #     coords[3] -= coords[1]
-    #     x_diff = int(coords[2]/2)
-    #     y_diff = int(coords[3]/2)
-    #     coords[0] = coords[0]+x_diff
-    #     coords[1] = coords[1]+y_diff
-    #     coords[0] /= int(image.shape[1])
-    #     coords[1] /= int(image.shape[0])
-    #     coords[2] /= int(image.shape[1])
-    #     coords[3] /= int(image.shape[0])
-    #     return "{} {} {} {}".format(str(coords[0]), str(coords[1]), str(coords[2]), str(coords[3]))
-
-    def create_annotation(self, txt_file, file_name, img_file):
+    def create_annotation(self, txt_file, file_name):
         content = ""
 
         with open(os.path.join(self.dataset_path, "labels", "detections.csv")) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
-            line_count = 0
+            first_line = True
+            found_filename = False
             for row in csv_reader:
-                if line_count == 0:
+                if first_line:
                     # skip first title line
-                    line_count += 1
+                    first_line = False
                 else:
                     if row[0] == file_name:
+                        found_filename = True
                         if row[2] in self.classes_label:
                             obj_class = self.classes_label.index(row[2])
-                            annotation = self.get_yolo_annotation(row, img_file)
+                            annotation = self.get_yolo_annotation(row)
                             if annotation:
                                 if content:
                                     content += "\n{} {}".format(obj_class, annotation)
                                 else:
                                     content += "{} {}".format(obj_class, annotation)
-                    line_count += 1
+                    # if we found the image_filename then once we finish running on it we can quit because all of the other records are not relevant
+                    elif found_filename:
+                        break
 
             if content != "":
                 with open(txt_file, "w") as outFile:
@@ -124,9 +107,13 @@ class CreateAnnotation(object):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--dataset_path', help='Path to the dataset root directory', default=os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "validation"))
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('-p', '--dataset_path', help='Path to the dataset root directory', default=os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "validation"))
+    #
+    # args = parser.parse_args()
+    #
+    # CreateAnnotation(args.dataset_path)
 
-    args = parser.parse_args()
-
-    CreateAnnotation(args.dataset_path)
+    CreateAnnotation(os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "validation"))
+    CreateAnnotation(os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "test"))
+    CreateAnnotation(os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "train"))
