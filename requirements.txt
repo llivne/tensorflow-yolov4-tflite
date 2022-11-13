@@ -1,5 +1,6 @@
 # use python3.9 for this project.
-opencv-python==4.4.0.46
+# opencv-python==4.4.0.46
+opencv-python
 lxml
 tqdm
 tensorflow
@@ -9,6 +10,11 @@ matplotlib
 pillow
 
 # packages for simple image downloader script
-python-magic
+# python-magic # not sure we need it ?? https://github.com/ahupp/python-magic/issues/248
 python-magic-bin # required for windows
 progressbar
+
+# https://storage.googleapis.com/openimages/web/index.html image downloader
+fiftyone
+keyboard
+

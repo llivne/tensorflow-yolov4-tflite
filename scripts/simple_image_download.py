@@ -222,7 +222,7 @@ if __name__ == '__main__':
     #                  'yard dumpster in street,' \
     #                  'מכולה ברחוב'
 
-    download_items = 'van'
+    download_items = 'attic, basement, living-room, warehouse, kitchen, room'
 
     download_number = 200
 
