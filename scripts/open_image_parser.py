@@ -1,5 +1,6 @@
 import csv
 import argparse
+import itertools
 import os
 import cv2
 import shutil
@@ -49,14 +50,18 @@ class CreateAnnotation(object):
     def do_annotate(self):
         # run on all files in path
         for root, dirs, files in os.walk(os.path.join(self.dataset_path, "data")):
+            line_num = 1
+
             for file in files:
                 pre, ext = os.path.splitext(file)
                 if ext[1:].lower() in SUPPORT_EXTENSIONS:
                     img_file = os.path.join(root, file)
                     txt_file = os.path.join(root, pre + ".txt")
                     if not os.path.exists(txt_file):
-                        print("{}creating annotation img file for: {}{}".format(TGREEN, file, ENDC))
-                        self.create_annotation(txt_file, pre)
+                        line_num, success = self.create_annotation(txt_file, pre, line_num)
+                        if not success:
+                            print("{}Retrying again...{}".format(TRED, file, ENDC))
+                            self.create_annotation(txt_file, pre, 0)
 
     def get_yolo_annotation(self, row):
         x_min = float(row[4])
@@ -73,38 +78,37 @@ class CreateAnnotation(object):
 
         return "{} {} {} {}".format(str(coords[0]), str(coords[1]), str(coords[2]), str(coords[3]))
 
-    def create_annotation(self, txt_file, file_name):
+    def create_annotation(self, txt_file, file_name, line_num):
         content = ""
+        current_line = line_num
 
         with open(os.path.join(self.dataset_path, "labels", "detections.csv")) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
-            first_line = True
-            found_filename = False
-            for row in csv_reader:
-                if first_line:
-                    # skip first title line
-                    first_line = False
-                else:
-                    if row[0] == file_name:
-                        found_filename = True
-                        if row[2] in self.classes_label:
-                            obj_class = self.classes_label.index(row[2])
-                            annotation = self.get_yolo_annotation(row)
-                            if annotation:
-                                if content:
-                                    content += "\n{} {}".format(obj_class, annotation)
-                                else:
-                                    content += "{} {}".format(obj_class, annotation)
-                    # if we found the image_filename then once we finish running on it we can quit because all of the other records are not relevant
-                    elif found_filename:
-                        break
+            sliced_csv_reader = itertools.islice(csv_reader, line_num, None)
+            for row in sliced_csv_reader:
+                if row[0] == file_name:
+                    if row[2] in self.classes_label:
+                        obj_class = self.classes_label.index(row[2])
+                        annotation = self.get_yolo_annotation(row)
+                        if annotation:
+                            if content:
+                                content += "\n{} {}".format(obj_class, annotation)
+                            else:
+                                content += "{} {}".format(obj_class, annotation)
+                # if we found the image_filename then once we finish running on it we can quit because all of the other records are not relevant
+                elif content != "":
+                    with open(txt_file, "w") as outFile:
+                        outFile.write(content)
+                    break
 
-            if content != "":
-                with open(txt_file, "w") as outFile:
-                    outFile.write(content)
-            else:
-                print("{}creating No annotation were found for: {}. no file was created{}".format(TRED, file_name, ENDC))
+                current_line += 1
 
+            if content == "":
+                print("{}failed to create annotation for: {}{}".format(TRED, file_name, ENDC))
+                return current_line, False
+
+            print("{}created annotation img file for: {}{}".format(TGREEN, file_name, ENDC))
+            return current_line, True
 
 if __name__ == "__main__":
     # parser = argparse.ArgumentParser()
