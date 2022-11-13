@@ -63,11 +63,14 @@ class CreateAnnotation(object):
                         img_file = os.path.join(root, file)
                         txt_file = os.path.join(root, pre + ".txt")
                         if not os.path.exists(txt_file):
-                            line_num, success = self.create_annotation(txt_file, pre, sliced_csv_reader)
-                            if not success:
-                                print("{}Retrying again...{}".format(TRED, file, ENDC))
+                            line_num = self.create_annotation(txt_file, pre, sliced_csv_reader)
+
+                            # if we get error then reset the csv so other files will get annotated.
+                            # the failed file will not get annotated
+                            if line_num == 0:
+                                csv_file.seek(0)
+                                csv_reader = csv.reader(csv_file, delimiter=',')
                                 sliced_csv_reader = itertools.islice(csv_reader, 0, None)
-                                line_num, success = self.create_annotation(txt_file, pre, sliced_csv_reader)
 
     def get_yolo_annotation(self, row):
         x_min = float(row[4])
@@ -98,6 +101,7 @@ class CreateAnnotation(object):
                             content += "\n{} {}".format(obj_class, annotation)
                         else:
                             content += "{} {}".format(obj_class, annotation)
+
             # if we found the image_filename then once we finish running on it we can quit because all of the other records are not relevant
             elif content != "":
                 with open(txt_file, "w") as outFile:
@@ -108,10 +112,10 @@ class CreateAnnotation(object):
 
         if content == "":
             print("{}failed to create annotation for: {}{}".format(TRED, file_name, ENDC))
-            return line_num, False
-
-        print("{}created annotation img file for: {}{}".format(TGREEN, file_name, ENDC))
-        return line_num, True
+            return 0
+        else:
+            print("{}created annotation img file for: {}{}".format(TGREEN, file_name, ENDC))
+            return line_num
 
 if __name__ == "__main__":
     # parser = argparse.ArgumentParser()
