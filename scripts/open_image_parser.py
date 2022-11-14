@@ -53,6 +53,7 @@ class CreateAnnotation(object):
             csv_reader = csv.reader(csv_file, delimiter=',')
             sliced_csv_reader = itertools.islice(csv_reader, 0, None)
             line_num = 0
+            total_line = 0
 
             # run on all files in path
             for root, dirs, files in os.walk(os.path.join(self.dataset_path, "data")):
@@ -67,12 +68,17 @@ class CreateAnnotation(object):
 
                             # call create_anotation()
                             line_num = self.create_annotation(txt_file, pre, sliced_csv_reader)
+                            total_line += line_num
 
                             # if we get error then reset the csv and retry.
                             if line_num == 0:
                                 csv_file.seek(0)
                                 csv_reader = csv.reader(csv_file, delimiter=',')
-                                sliced_csv_reader = itertools.islice(csv_reader, 0, None)
+                                if total_line > 1000:
+                                    total_line -= 1000
+                                else:
+                                    total_line = 0
+                                sliced_csv_reader = itertools.islice(csv_reader, total_line, None)
                                 print("retrying...")
                                 self.create_annotation(txt_file, pre, sliced_csv_reader)
 
