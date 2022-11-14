@@ -1,3 +1,4 @@
+import argparse
 import csv
 import itertools
 import os
@@ -63,14 +64,17 @@ class CreateAnnotation(object):
                         img_file = os.path.join(root, file)
                         txt_file = os.path.join(root, pre + ".txt")
                         if not os.path.exists(txt_file):
+
+                            # call create_anotation()
                             line_num = self.create_annotation(txt_file, pre, sliced_csv_reader)
 
-                            # if we get error then reset the csv so other files will get annotated.
-                            # the failed file will not get annotated
+                            # if we get error then reset the csv and retry.
                             if line_num == 0:
                                 csv_file.seek(0)
                                 csv_reader = csv.reader(csv_file, delimiter=',')
                                 sliced_csv_reader = itertools.islice(csv_reader, 0, None)
+                                print("retrying...")
+                                self.create_annotation(txt_file, pre, sliced_csv_reader)
 
     def get_yolo_annotation(self, row):
         x_min = float(row[4])
@@ -90,8 +94,15 @@ class CreateAnnotation(object):
     def create_annotation(self, txt_file, file_name, sliced_csv_reader):
         content = ""
         line_num = 0
+        start = time.time()
 
         for row in sliced_csv_reader:
+
+            # for large dataset we get stuck. monkypatch to reset
+            if time.time() - start > 2:
+                content = ""
+                break
+
             if row[0] == file_name:
                 if row[2] in self.classes_label:
                     obj_class = self.classes_label.index(row[2])
@@ -119,12 +130,12 @@ class CreateAnnotation(object):
 
 if __name__ == "__main__":
     # parser = argparse.ArgumentParser()
-    # parser.add_argument('-p', '--dataset_path', help='Path to the dataset root directory', default=os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "validation"))
+    # parser.add_argument('-p', '--dataset_path', help='Path to the dataset root directory', default=os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "data"))
     #
     # args = parser.parse_args()
     #
     # CreateAnnotation(args.dataset_path)
 
-    CreateAnnotation(os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "validation"))
-    CreateAnnotation(os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "test"))
+    # CreateAnnotation(os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "validation"))
+    # CreateAnnotation(os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "test"))
     CreateAnnotation(os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "train"))
