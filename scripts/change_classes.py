@@ -55,9 +55,9 @@ class ChangeClass(object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--dataset_path', help='Path to the dataset root directory', default=os.path.join(os.getcwd(), "datasets", "cardboard_garbage_bags_and_containers", "data", "labels"))
-    parser.add_argument('-n', '--class_number', help='the new class number', default="5")
-    parser.add_argument('-o', '--original_class', help='the original class number', default="0")
+    parser.add_argument('-p', '--dataset_path', help='Path to the dataset root directory', default=os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "crowdhuman"))
+    parser.add_argument('-n', '--class_number', help='the new class number', default="0")
+    parser.add_argument('-o', '--original_class', help='the original class number', default="1")
     parser.add_argument('-r', '--remove', help='remove class from file', action="store_true")
 
     args = parser.parse_args()

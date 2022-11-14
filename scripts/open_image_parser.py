@@ -24,7 +24,7 @@ CLASSES = ['person',
 
 class CreateAnnotation(object):
     def __init__(self, dataset_path):
-        print(f"Doing annotation for {dataset_path}")
+        print(f"\nDoing annotation for {dataset_path}\n")
 
         self.dataset_path = dataset_path
         self.classes_label = self.get_classes_labels()
@@ -48,20 +48,31 @@ class CreateAnnotation(object):
         return classes_labels
 
     def do_annotate(self):
+        # calc total files number
+        total_files = 0
+        for root, dirs, files in os.walk(os.path.join(self.dataset_path)):
+            for file in files:
+                pre, ext = os.path.splitext(file)
+                if ext[1:].lower() in SUPPORT_EXTENSIONS:
+                    total_files += 1
+        print (f"\nabout to annotate {total_files} images\n")
+
         # open the csv label file only once, we will slice it during the run because it is huge
         with open(os.path.join(self.dataset_path, "labels", "detections.csv")) as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=',')
-            sliced_csv_reader = itertools.islice(csv_reader, 0, None)
-            line_num = 0
-            total_line = 0
+            counter = 0
 
             # run on all files in path
-            for root, dirs, files in os.walk(os.path.join(self.dataset_path, "data")):
-                sliced_csv_reader = itertools.islice(sliced_csv_reader, line_num, None)
+            for root, dirs, files in os.walk(os.path.join(self.dataset_path)):
+                line_num = 0
+                total_line = 0
+                csv_file.seek(0)
+                csv_reader = csv.reader(csv_file, delimiter=',')
+                sliced_csv_reader = itertools.islice(csv_reader, line_num, None)
 
                 for file in files:
                     pre, ext = os.path.splitext(file)
                     if ext[1:].lower() in SUPPORT_EXTENSIONS:
+                        counter += 1
                         img_file = os.path.join(root, file)
                         txt_file = os.path.join(root, pre + ".txt")
                         if not os.path.exists(txt_file):
@@ -80,7 +91,8 @@ class CreateAnnotation(object):
                                     total_line = 0
                                 sliced_csv_reader = itertools.islice(csv_reader, total_line, None)
                                 print("retrying...")
-                                self.create_annotation(txt_file, pre, sliced_csv_reader)
+                                print(f"current progress: {round((counter/total_files)*100, 2)}% [{counter} / {total_files}]")
+                                self.create_annotation(txt_file, pre, sliced_csv_reader, timer=300)
 
     def get_yolo_annotation(self, row):
         x_min = float(row[4])
@@ -97,7 +109,7 @@ class CreateAnnotation(object):
 
         return "{} {} {} {}".format(str(coords[0]), str(coords[1]), str(coords[2]), str(coords[3]))
 
-    def create_annotation(self, txt_file, file_name, sliced_csv_reader):
+    def create_annotation(self, txt_file, file_name, sliced_csv_reader, timer=2):
         content = ""
         line_num = 0
         start = time.time()
@@ -105,7 +117,7 @@ class CreateAnnotation(object):
         for row in sliced_csv_reader:
 
             # for large dataset we get stuck. monkypatch to reset
-            if time.time() - start > 2:
+            if time.time() - start > timer:
                 content = ""
                 break
 
@@ -142,6 +154,6 @@ if __name__ == "__main__":
     #
     # CreateAnnotation(args.dataset_path)
 
-    # CreateAnnotation(os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "validation"))
-    # CreateAnnotation(os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "test"))
+    CreateAnnotation(os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "validation"))
+    CreateAnnotation(os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "test"))
     CreateAnnotation(os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "train"))

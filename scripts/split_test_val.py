@@ -49,8 +49,8 @@ class SplitImages(object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--dataset_path', help='Path to the dataset root directory', default=os.path.join(os.getcwd(), "train"))
-    parser.add_argument('-t', '--target_path', help='Path to the dataset root directory', default=os.path.join(os.getcwd(), "bg"))
+    parser.add_argument('-p', '--dataset_path', help='Path to the dataset root directory', default=os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "crowdhuman"))
+    parser.add_argument('-t', '--target_path', help='Path to the dataset root directory', default=os.path.join(os.getcwd(), "..", "..", "..", "fiftyone", "open-images-v6", "crowdhuman-2"))
 
     args = parser.parse_args()
 
