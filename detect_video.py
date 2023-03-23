@@ -104,7 +104,7 @@ def main(_argv):
             score_threshold=FLAGS.score
         )
         pred_bbox = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
-        image = utils.draw_bbox(frame, pred_bbox)
+        image, _, _ = utils.draw_bbox(frame, pred_bbox)
         fps = 1.0 / (time.time() - start_time)
         print("FPS: %.2f" % fps)
         result = np.asarray(image)

@@ -1,0 +1,28 @@
+version: '3.7'
+services:
+  detection:
+    restart: always
+    build: .
+    #    command: tail -f /dev/null 
+    command: python3 /detector_files/tensorflow-yolov4-tflite/manage.py run -h 0.0.0.0
+    environment:
+      - FLASK_APP=server/__init__.py
+    volumes:
+      - .:/detector_files/tensorflow-yolov4-tflite
+#      - "${MODEL_FOLDER}:/model_folder"
+#      - "${HOME_SSH}:/root/_ssh"
+      - ./images_common:/images_common
+      - detector_files:/detector_files
+      - dist_packages:/usr/local/lib/python3.8/dist-packages
+    ports:
+      - 5000:5000
+
+volumes:
+  sqlite_volume:
+  static_volume:
+  engine_static:
+  engine_media:
+  detector_files:
+  dist_packages:
+  # NOTE: images will be deleted if this volume deleted
+  images_common:

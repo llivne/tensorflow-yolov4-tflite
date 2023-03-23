@@ -22,8 +22,8 @@ flags.DEFINE_boolean('tiny', False, 'yolo or yolo-tiny')
 flags.DEFINE_string('model', 'yolov4', 'yolov3 or yolov4')
 flags.DEFINE_list('images', './data/images/kite.jpg', 'path to input image')
 flags.DEFINE_string('output', './detections/', 'path to output folder')
-flags.DEFINE_float('iou', 0.45, 'iou threshold')
-flags.DEFINE_float('score', 0.25, 'score threshold')
+flags.DEFINE_float('iou', 0.05, 'iou threshold')
+flags.DEFINE_float('score', 0.05, 'score threshold')
 flags.DEFINE_boolean('dont_show', False, 'dont show image output')
 
 def main(_argv):
@@ -94,7 +94,7 @@ def main(_argv):
         # custom allowed classes (uncomment line below to allow detections for only people)
         #allowed_classes = ['person']
 
-        image = utils.draw_bbox(original_image, pred_bbox, allowed_classes = allowed_classes)
+        image, _, _ = utils.draw_bbox(original_image, pred_bbox, allowed_classes = allowed_classes)
 
         image = Image.fromarray(image.astype(np.uint8))
         if not FLAGS.dont_show:
