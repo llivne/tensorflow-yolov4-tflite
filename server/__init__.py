@@ -1,4 +1,5 @@
 import flask_detect
+import gdown
 import os
 import tensorflow as tf
 
@@ -13,6 +14,11 @@ Path(DETECTIONS_PATH).mkdir(parents=True, exist_ok=True)
 
 
 app = Flask(__name__)
+
+# download model if it's not located in the model folder
+if not os.path.exists('./checkpoints/yolov4-416'):
+    url = "https://drive.google.com/drive/folders/1Kpcsza2ray22Y2RkT9ehcYHLNI4jZuwH"
+    gdown.download_folder(url, output='./checkpoints/bla/yolov4-416', quiet=True, use_cookies=False)
 
 saved_model_loaded = tf.saved_model.load('./checkpoints/yolov4-416', tags=[tag_constants.SERVING])
 
