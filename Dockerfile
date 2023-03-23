@@ -11,6 +11,7 @@ RUN apt-get update \
 RUN apt-get update
 RUN apt-get upgrade -y
 
+RUN apt-get install -y libmagic-dev
 RUN apt-get install -y openssh-server
 RUN apt-get install  -y python3-pip
 RUN apt-get install  -y vim
