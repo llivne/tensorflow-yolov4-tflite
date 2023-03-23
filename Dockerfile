@@ -1,6 +1,5 @@
 FROM ubuntu:20.04
 
-
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt update && apt install  openssh-server sudo -y
 RUN apt-get update \
@@ -18,6 +17,8 @@ RUN apt-get install  -y vim
 
 ARG SOURCE_BRANCH=master
 ENV SOURCE_BRANCH $SOURCE_BRANCH
+
+COPY . /detector_files/
 
 COPY entrypoint.sh entrypoint.sh
 
