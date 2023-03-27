@@ -45,14 +45,14 @@ def get_detections_data(boxes, scores, classes, valid_detections):
     return classes_list, scores_list
 
 
-def run(imagePath, saved_model_loaded):
+def run(imagePath, saved_model_loaded, save_labeled_img=False):
     size = 416
     tiny = False
     model = 'yolov4'
     images = imagePath
     output = DETECTIONS_PATH
-    iou = 0.45
-    score = 0.25
+    iou = 0.05
+    score = 0.05
     dont_show = os.environ.get('DO_NOT_SHOW_IMAGE', 'True') == 'True'
 
     config = ConfigProto()
@@ -105,17 +105,20 @@ def run(imagePath, saved_model_loaded):
         # custom allowed classes (uncomment line below to allow detections for only people)
         # allowed_classes = ['person']
 
-        image, class_ind, res_boxes = utils.draw_bbox(
-            original_image, pred_bbox, allowed_classes=allowed_classes, show_label=False, no_actual_draw=True)
+        if save_labeled_img:
+            image, class_ind, res_boxes = utils.draw_bbox(original_image, pred_bbox, allowed_classes=allowed_classes)
 
-        image = Image.fromarray(image.astype(np.uint8))
-        if not dont_show:
-            image.show()
-        image = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
+            image = Image.fromarray(image.astype(np.uint8))
+            if not dont_show:
+                image.show()
+            image = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
 
-        imageName = os.path.basename(image_path)
-        imagePath = output + imageName
-        cv2.imwrite(imagePath, image)
+            imageName = os.path.basename(image_path)
+            imagePath = output + imageName
+            cv2.imwrite(imagePath, image)
+        else:
+            image, class_ind, res_boxes = utils.draw_bbox(
+                original_image, pred_bbox, allowed_classes=allowed_classes, show_label=False, no_actual_draw=True)
 
         classes_list, scores_list = get_detections_data(
             boxes, scores, classes, valid_detections)

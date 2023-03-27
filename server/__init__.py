@@ -32,9 +32,9 @@ def do_detection():
     if request.method == 'POST':
         content = request.json
         file_path = content['file_path']
-        file_name = os.path.basename(file_path)
-        file_path = f'{IMAGES_DIR}/{file_name}'
-        response = flask_detect.run([file_path], saved_model_loaded)
+        # file_name = os.path.basename(file_path)
+        # file_path = f'{IMAGES_DIR}/{file_name}'
+        response = flask_detect.run([file_path], saved_model_loaded, save_labeled_img=True) # save_labeled_img is for debugging only. remove in prod
         if len(response) > 0:
             _, _, classes_list, scores_list, res_boxes = response[0]
             return jsonify({"resp": "OK", "boxes": res_boxes, "clz_list": classes_list, "scores_list": scores_list}), 200
