@@ -59,6 +59,7 @@ def run(imagePath, saved_model_loaded):
     config.gpu_options.allow_growth = True
     input_size = size
     images = images
+    response = []
 
     for count, image_path in enumerate(images, 1):
         print(f"PATH {image_path}")
@@ -91,7 +92,7 @@ def run(imagePath, saved_model_loaded):
         )
 
         if valid_detections.numpy()[0] == 0:
-            return None, -1, [], [], []
+            continue
 
         pred_bbox = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
 
@@ -119,8 +120,9 @@ def run(imagePath, saved_model_loaded):
         classes_list, scores_list = get_detections_data(
             boxes, scores, classes, valid_detections)
 
-        return imagePath, class_ind, classes_list, scores_list, res_boxes
+        response.append((imagePath, class_ind, classes_list, scores_list, res_boxes))
 
+    return response
 
 if __name__ == '__main__':
     try:

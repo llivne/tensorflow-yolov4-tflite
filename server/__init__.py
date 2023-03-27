@@ -25,13 +25,21 @@ saved_model_loaded = tf.saved_model.load('./checkpoints/yolov4-416', tags=[tag_c
 
 @app.route('/detect', methods=['POST', 'GET'])
 def do_detection():
+    '''
+    perform inference for a single image.
+    :return:
+    '''
     if request.method == 'POST':
         content = request.json
         file_path = content['file_path']
         file_name = os.path.basename(file_path)
         file_path = f'{IMAGES_DIR}/{file_name}'
-        _, _, classes_list, scores_list, res_boxes = flask_detect.run([file_path], saved_model_loaded)
-        return jsonify({"resp": "OK", "boxes": res_boxes, "clz_list": classes_list, "scores_list": scores_list}), 200
+        response = flask_detect.run([file_path], saved_model_loaded)
+        if len(response) > 0:
+            _, _, classes_list, scores_list, res_boxes = response[0]
+            return jsonify({"resp": "OK", "boxes": res_boxes, "clz_list": classes_list, "scores_list": scores_list}), 200
+        else:
+            return jsonify({"resp": "NO_DETECTION", "boxes": [], "clz_list": [], "scores_list": []}), 200
     if request.method == 'GET':
         return jsonify({"status": "detection server running"}), 200
 
