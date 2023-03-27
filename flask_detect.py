@@ -91,7 +91,7 @@ def run(imagePath, saved_model_loaded):
         )
 
         if valid_detections.numpy()[0] == 0:
-            return None, -1, set(), []
+            return None, -1, [], [], []
 
         pred_bbox = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
 
@@ -112,7 +112,6 @@ def run(imagePath, saved_model_loaded):
             image.show()
         image = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
 
-        import os
         imageName = os.path.basename(image_path)
         imagePath = output + imageName
         cv2.imwrite(imagePath, image)
