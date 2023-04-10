@@ -14,10 +14,11 @@ import cv2
 import numpy as np
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
+from pathlib import Path
 
 
-DETECTIONS_PATH = os.environ.get('DETECTIONS_PATH', '/images_common/image_upload_folder/detections/')
-
+DETECTIONS_PATH = os.environ.get('DETECTIONS_PATH', '/images_common/annotated_detections')
+Path(DETECTIONS_PATH).mkdir(parents=True, exist_ok=True)
 
 physical_devices = tf.config.experimental.list_physical_devices('GPU')
 if len(physical_devices) > 0:
@@ -114,7 +115,7 @@ def run(imagePath, saved_model_loaded, save_labeled_img=False):
             image = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
 
             imageName = os.path.basename(image_path)
-            imagePath = output + imageName
+            imagePath = os.path.join(output, imageName)
             cv2.imwrite(imagePath, image)
         else:
             image, class_ind, res_boxes = utils.draw_bbox(

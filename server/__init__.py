@@ -8,11 +8,6 @@ from pathlib import Path
 from tensorflow.python.saved_model import tag_constants
 
 
-IMAGES_DIR = os.environ.get('IMAGES_DIR', '/images_common')
-DETECTIONS_PATH = os.environ.get('DETECTIONS_PATH', '/images_common/image_upload_folder/detections/')
-Path(DETECTIONS_PATH).mkdir(parents=True, exist_ok=True)
-
-
 app = Flask(__name__)
 
 # download model if it's not located in the model folder
