@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM python:3.8-slim-buster
 
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt update && apt install  openssh-server sudo -y
@@ -21,5 +21,5 @@ ENV SOURCE_BRANCH $SOURCE_BRANCH
 COPY . /detector_files/
 
 COPY entrypoint.sh entrypoint.sh
-
+RUN chmod +x entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
