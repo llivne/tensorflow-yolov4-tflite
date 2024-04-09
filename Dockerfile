@@ -20,6 +20,9 @@ ENV SOURCE_BRANCH $SOURCE_BRANCH
 
 COPY . /detector_files/
 
+# install requirements so it will be part of the image and speed up container reloading. if the requirements changes only the changes will be install as part of the entrypoint.sh script.
+RUN pip install -r /detector_files/requirements.txt
+
 COPY entrypoint.sh entrypoint.sh
 RUN chmod +x entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
